@@ -28,8 +28,8 @@ public class SpringBootQuotesController {
     return springBootQuotesService.getRandomQuote();
   }
 
-  @RequestMapping(path ="/quotes/kompal/{number}", method = RequestMethod.GET)
-  public List<ZeroFollowers.Item> getWebsites(@PathVariable("number") Integer number){
+  @RequestMapping(path ="/user/{number}", method = RequestMethod.GET)
+  public List<FindUsers.Item> getWebsites(@PathVariable("number") Integer number){
     return springBootQuotesService.getWebsites(number);
   }
 }
