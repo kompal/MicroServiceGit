@@ -19,7 +19,7 @@ public class UserModel {
     public void setItems(List<Item> items) {
         this.items = items;
     }
-    
+
     @JsonIgnoreProperties(ignoreUnknown = true)
     @Data
     public class Item{

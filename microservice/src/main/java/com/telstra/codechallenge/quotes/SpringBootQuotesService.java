@@ -31,6 +31,7 @@ public class SpringBootQuotesService {
    * @return - a quote array
    */
   public Quote[] getQuotes() {
+    System.out.println("url -"+quotesBaseUrl);
     return restTemplate.getForObject(quotesBaseUrl + "/api", Quote[].class);
   }
 

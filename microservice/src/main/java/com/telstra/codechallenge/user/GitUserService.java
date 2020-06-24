@@ -35,7 +35,7 @@ public class GitUserService {
 
     public List<Item> getWebsites(Integer number) throws Exception{
 
-        String ROOT_URI= "https://api.github.com/search/repositories?q=followers:0&sort=joined&order=asc&per_page=50";
+        String ROOT_URI= "https://api.github.com/search/users?q=followers:0&sort=joined&order=asc&per_page=50";
         ResponseEntity<String> response = restTemplate.getForEntity(ROOT_URI, String.class);
         System.out.println("porp "+appDomain);
         System.out.println("response ENtity -"+response);
@@ -64,9 +64,10 @@ public class GitUserService {
 
     public ResponseEntity getWebsites2(Integer number) throws Exception{
 
-        String ROOT_URI= "https://api.github.com/search/repositories?q=followers:0&sort=joined&order=asc&per_page=50";
+        String ROOT_URI= "https://api.github.com/search/users?q=followers:0&sort=joined&order=asc&per_page=50";
         ResponseEntity<String> response = restTemplate.getForEntity(ROOT_URI, String.class);
         UserModel userModelResponse = restTemplate.getForObject(ROOT_URI,UserModel.class);
+
         System.out.println("check ");
         System.out.println("response ENtity -"+response);
         List<Item> finalresult = new ArrayList<>();
