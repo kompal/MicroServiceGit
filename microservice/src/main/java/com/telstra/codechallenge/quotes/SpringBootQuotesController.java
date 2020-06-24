@@ -3,7 +3,8 @@ package com.telstra.codechallenge.quotes;
 import java.util.Arrays;
 import java.util.List;
 
-import com.telstra.codechallenge.errorHandling.CustomExceptionHandler;
+import com.telstra.codechallenge.user.UserModel;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -31,9 +32,4 @@ public class SpringBootQuotesController {
     return springBootQuotesService.getRandomQuote();
   }
 
-  @RequestMapping(path ="/user/{number}", method = RequestMethod.GET)
-  public List<FindUsers.Item> getWebsites(@PathVariable("number") @Valid Integer number) throws Exception {
-
-    return springBootQuotesService.getWebsites(number);
-  }
 }

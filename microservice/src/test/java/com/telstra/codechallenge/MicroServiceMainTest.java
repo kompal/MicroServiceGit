@@ -8,9 +8,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.telstra.codechallenge.errorHandling.CustomException;
-import com.telstra.codechallenge.quotes.FindUsers;
 import com.telstra.codechallenge.quotes.SpringBootQuotesService;
+import com.telstra.codechallenge.user.GitUserService;
+import org.junit.Rule;
 import org.junit.jupiter.api.Test;
+import org.junit.rules.ExpectedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
@@ -19,7 +21,7 @@ import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
-import com.telstra.codechallenge.quotes.FindUsers.Item;
+import com.telstra.codechallenge.user.UserModel.Item;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 public class MicroServiceMainTest {
@@ -66,11 +68,11 @@ public class MicroServiceMainTest {
   @Test
   public void testgetWebsitesServicePositive() throws RestClientException {
     RestTemplate restTemplate = new RestTemplate();
-    SpringBootQuotesService springBootQuotesService = new SpringBootQuotesService(restTemplate);
+    GitUserService gitUserService = new GitUserService(restTemplate);
     List<Item> userList = new ArrayList<>();
     Integer numberOfUsers = 2;
     try {
-      userList = springBootQuotesService.getWebsites(numberOfUsers);
+      userList = gitUserService.getWebsites(numberOfUsers);
       if(userList.size()<numberOfUsers || userList.size()==0){
         throw new CustomException("Unable to get users","users not found for the criteria",204);
       }else{
@@ -85,14 +87,18 @@ public class MicroServiceMainTest {
     assert(userList.size()>0);
   }
 
+  @Rule
+  public ExpectedException exceptionRule = ExpectedException.none();
   @Test
-  public void testgetWebsitesServiceNegative() throws RestClientException {
+  public void testgetWebsitesServiceNegative() throws RestClientException,CustomException {
+    exceptionRule.expect(CustomException.class);
+    exceptionRule.expectMessage("Unable to get users");
     RestTemplate restTemplate = new RestTemplate();
-    SpringBootQuotesService springBootQuotesService = new SpringBootQuotesService(restTemplate);
+    GitUserService gitUserService = new GitUserService(restTemplate);
     List<Item> userList = new ArrayList<>();
     Integer numberOfUsers = 2;
     try {
-      userList = springBootQuotesService.getWebsites(numberOfUsers);
+      userList = gitUserService.getWebsites(numberOfUsers);
       userList.clear(); // to makae the list null , returning no data to user
       if(userList.size()<numberOfUsers || userList.size()==0){
         throw new CustomException("Unable to get users","users not found for the criteria",204);
@@ -100,12 +106,15 @@ public class MicroServiceMainTest {
         System.out.println(userList);
       }
 
-    }catch (CustomException ex){
-      System.out.println("Exception - "+ex.getMessage());
     } catch (Exception e) {
       e.printStackTrace();
     }
   }
 
-
+  @Test
+  public void testkompal(){
+    String ROOT_URI= "https://api.github.com/search/repositories?q=followers:0&sort=joined&order=asc&per_page=50";
+    ResponseEntity<String> response = restTemplate.getForEntity(ROOT_URI, String.class);
+    System.out.println("response ENtity -"+response);
+  }
 }
