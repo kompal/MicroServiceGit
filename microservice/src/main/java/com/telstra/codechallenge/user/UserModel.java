@@ -11,13 +11,25 @@ import java.util.List;
 @Data
 public class UserModel {
 
+    private Integer responseStatus;
     private List<Item> items ;
+
+    public Integer getResponseStatus() {
+        return responseStatus;
+    }
+
+    public void setResponseStatus(Integer responseStatus) {
+        this.responseStatus = responseStatus;
+    }
 
     public List<Item> getItems() {
         return items;
     }
     public void setItems(List<Item> items) {
         this.items = items;
+    }
+    public UserModel(){
+        items= new ArrayList<>();
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
