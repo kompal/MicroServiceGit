@@ -18,16 +18,12 @@ public class GitUserService {
 
     private RestTemplate restTemplate;
 
+    public void setRestTemplate(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
+
     @Value("${user.base.url}")
     public String appDomain;
-
-    public String getAppDomain() {
-        return appDomain;
-    }
-
-    public void setAppDomain(String appDomain) {
-        this.appDomain = appDomain;
-    }
 
     public GitUserService(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
@@ -35,6 +31,7 @@ public class GitUserService {
 
     public UserModel getUsers(Integer number){
 
+        System.out.println("app domain-"+appDomain);
         String ROOT_URI= appDomain;
         Map<String, Integer> params = new HashMap<>();
         URI uri = UriComponentsBuilder.fromUriString(ROOT_URI)
