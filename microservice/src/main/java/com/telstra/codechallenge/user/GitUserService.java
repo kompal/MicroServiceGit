@@ -1,28 +1,29 @@
 package com.telstra.codechallenge.user;
 
-import com.google.gson.Gson;
 import com.telstra.codechallenge.errorHandling.CustomException;
-import com.telstra.codechallenge.quotes.Quote;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.env.Environment;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.client.RestTemplate;
-import com.telstra.codechallenge.user.UserModel.Item;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public class GitUserService {
+    private static final Logger LOGGER = LogManager.getLogger(GitUserService.class.getName());
 
     private RestTemplate restTemplate;
 
     @Value("${user.base.url}")
     public String appDomain;
+
+    public String getAppDomain() {
+        return appDomain;
+    }
 
     public void setAppDomain(String appDomain) {
         this.appDomain = appDomain;
@@ -30,14 +31,12 @@ public class GitUserService {
 
     public GitUserService(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
-
     }
 
-    public UserModel getUsers(Integer number) throws Exception{
+    public UserModel getUsers(Integer number){
 
-        String ROOT_URI = appDomain;
+        String ROOT_URI= appDomain;
         Map<String, Integer> params = new HashMap<>();
-        UserModel userModelResult = new UserModel();
         URI uri = UriComponentsBuilder.fromUriString(ROOT_URI)
                 .buildAndExpand(params)
                 .toUri();
@@ -46,32 +45,13 @@ public class GitUserService {
                 .queryParam("per_page", number)
                 .build()
                 .toUri();
+        LOGGER.info("URL"+uri);
 
-
-        ResponseEntity<String> response = restTemplate.getForEntity(uri.toString(),String.class,number);
-
-        userModelResult.setResponseStatus(response.getStatusCodeValue());
-        List<Item> finalresult = new ArrayList<>();
-
-        if(response.getStatusCodeValue()==200) {
-            Gson gson = new Gson();
-            UserModel userModel
-                    = gson.fromJson(response.getBody(),
-                    UserModel.class);
-
-
-            if(userModel.getItems().size()>=number){ // to avoid null pointer exception
-                for (int i = 0; i < number; i++) {
-                    Item item = userModel.getItems().get(i);
-                    finalresult.add(item);
-                }
-            }
-        }else if(response.getStatusCodeValue()==400){
-            throw new CustomException("Bad Request ","Please provide a valid request",response.getStatusCodeValue());
-        }else if(response.getStatusCodeValue()==500){
-            throw new CustomException("Internal Server Error ","Please try accessing after some time",response.getStatusCodeValue());
+        UserModel userModel = restTemplate.getForObject(uri.toString(),UserModel.class,number);
+        LOGGER.debug("User list "+userModel);
+        if(userModel==null){
+            throw new CustomException("No users found","API returned no response",500);
         }
-        userModelResult.setItems(finalresult);
-        return userModelResult;
+        return  userModel;
     }
 }

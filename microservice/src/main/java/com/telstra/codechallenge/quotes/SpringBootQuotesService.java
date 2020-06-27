@@ -1,17 +1,8 @@
 package com.telstra.codechallenge.quotes;
 
-import com.google.gson.Gson;
-import com.telstra.codechallenge.errorHandling.CustomException;
-import com.telstra.codechallenge.user.UserModel;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.env.Environment;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import com.telstra.codechallenge.user.UserModel.Item;
-
-import java.util.*;
 
 @Service
 public class SpringBootQuotesService {
