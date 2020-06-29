@@ -54,7 +54,6 @@ public class GitUserServiceTest {
     @Test
     public void TestGitUserServiceResponse() throws Exception {
          gitUserService = Mockito.mock(GitUserService.class);
-        MockGitUserController mockGitUserController=new MockGitUserController();
         MockGitUserService mockGitUserService = new MockGitUserService();
         UserModel userModel =mockGitUserService.getUsers(5);
 
