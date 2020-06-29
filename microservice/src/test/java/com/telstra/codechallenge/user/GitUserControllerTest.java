@@ -1,7 +1,6 @@
 package com.telstra.codechallenge.user;
 
 
-import com.telstra.codechallenge.errorHandling.CustomException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,18 +13,17 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.web.server.LocalServerPort;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.web.client.RestTemplate;
 
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standaloneSetup;
 
 
@@ -39,15 +37,15 @@ public class GitUserControllerTest {
     @Spy
     GitUserService gitUserService;
 
+    @InjectMocks
+    @Spy
+    GitUserController gitUserController;
+
     @Mock
     private RestTemplate restTemplate;
 
-    @LocalServerPort
-    private int port;
-
     @Value("${user.base.url}")
     public String appDomain;
-
 
     private MockMvc mockMvc;
 
@@ -60,32 +58,76 @@ public class GitUserControllerTest {
 
     @Test
     public void testControllerBadRequest() throws Exception {
-        GitUserService gitUserService = Mockito.mock(GitUserService.class);
-        GitUserController gitUserController = Mockito.mock(GitUserController.class);
 
+        gitUserController = Mockito.mock(GitUserController.class);
+        gitUserService = Mockito.mock(GitUserService.class);
         MockGitUserController mockGitUserController=new MockGitUserController();
-        Mockito.when(gitUserController.getUsers(anyInt())).thenReturn(mockGitUserController.getUsers(8));
-        UserModel dto = new UserModel();
-        gitUserController.setGitUserService(gitUserService);
-        when(restTemplate.getForObject("/user/ok", UserModel.class)).thenThrow(new CustomException("Bad Request","Please pass a valid argument (Integer) ",400));
-        ResponseEntity<UserModel> response = gitUserController.getUsers(6);
-        Assert.assertEquals(response.getStatusCode(),HttpStatus.BAD_REQUEST);
+        MockGitUserService mockGitUserService = new MockGitUserService();
+        UserModel userModel =mockGitUserService.getUsers(5);
+        ResponseEntity responseEntity= mockGitUserController.getUsersInavlidRequest(-10);
+
+        Mockito.when(gitUserController.getUsers(anyInt())).thenReturn(responseEntity);
+        RequestBuilder requestBuilder = MockMvcRequestBuilders.get(
+                "/user/-10").queryParam("number","-10")
+                .accept(
+                        MediaType.APPLICATION_JSON);
+        MvcResult result = mockMvc.perform(requestBuilder).andReturn();
+        Assert.assertEquals(406,result.getResponse().getStatus());
     }
 
 
     @Test
-    public void testUser() throws Exception {
+    public void testGitUserControllerValidRequest() throws Exception {
 
-        GitUserController gitUserController = Mockito.mock(GitUserController.class);
+        gitUserController = Mockito.mock(GitUserController.class);
+        gitUserService = Mockito.mock(GitUserService.class);
 
         MockGitUserController mockGitUserController=new MockGitUserController();
-        Mockito.when(gitUserController.getUsers(anyInt())).thenReturn(mockGitUserController.getUsers(0));
+        MockGitUserService mockGitUserService = new MockGitUserService();
+        UserModel userModel =mockGitUserService.getUsers(5);
+        ResponseEntity responseEntity= mockGitUserController.getUsers(5);
 
-        mockMvc.perform( MockMvcRequestBuilders
-                .get("/user").queryParam("number","6")
-                .accept(MediaType.APPLICATION_JSON));
+        Mockito.when(
+                gitUserService.getUsers(Mockito.anyInt())).thenReturn(userModel);
+        Mockito.when(gitUserController.getUsers(anyInt())).thenReturn(responseEntity);
+        Mockito.when(restTemplate.getForObject(Mockito.anyString(),Mockito.any(), (Object) Mockito.any())).thenReturn(userModel);
+
+        RequestBuilder requestBuilder = MockMvcRequestBuilders.get(
+                "/user/5").queryParam("number","5")
+                .accept(
+                        MediaType.APPLICATION_JSON);
+        MvcResult result = mockMvc.perform(requestBuilder).andReturn();
+        System.out.println(result.getResponse().getStatus());
+        Assert.assertEquals(202,result.getResponse().getStatus());
 
     }
+
+    @Test
+    public void testGitUserControllerInvalidRequest() throws Exception {
+
+        gitUserController = Mockito.mock(GitUserController.class);
+        gitUserService = Mockito.mock(GitUserService.class);
+
+        MockGitUserController mockGitUserController=new MockGitUserController();
+        MockGitUserService mockGitUserService = new MockGitUserService();
+        UserModel userModel =mockGitUserService.getUsers(5);
+        ResponseEntity responseEntity= mockGitUserController.getUsers(5);
+
+        Mockito.when(
+                gitUserService.getUsers(Mockito.anyInt())).thenReturn(userModel);
+        Mockito.when(gitUserController.getUsers(anyInt())).thenReturn(responseEntity);
+        Mockito.when(restTemplate.getForObject(Mockito.anyString(),Mockito.any(), (Object) Mockito.any())).thenReturn(userModel);
+
+        RequestBuilder requestBuilder = MockMvcRequestBuilders.get(
+                "/user/101").queryParam("number","101")
+                .accept(
+                        MediaType.APPLICATION_JSON);
+        MvcResult result = mockMvc.perform(requestBuilder).andReturn();
+        System.out.println(result.getResponse().getStatus());
+        Assert.assertEquals(400,result.getResponse().getStatus());
+
+    }
+
 
 
 }
