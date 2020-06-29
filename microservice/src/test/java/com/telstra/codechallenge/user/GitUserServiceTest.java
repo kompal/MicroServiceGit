@@ -54,6 +54,7 @@ public class GitUserServiceTest {
     @Test
     public void TestGitUserServiceResponse() throws Exception {
          gitUserService = Mockito.mock(GitUserService.class);
+        MockGitUserController mockGitUserController=new MockGitUserController();
         MockGitUserService mockGitUserService = new MockGitUserService();
         UserModel userModel =mockGitUserService.getUsers(5);
 
@@ -69,7 +70,6 @@ public class GitUserServiceTest {
 
 
         Assert.assertEquals(202,result.getResponse().getStatus());
-        System.out.println(result.getResponse().getStatus());
     }
 
     @Test
@@ -88,7 +88,6 @@ public class GitUserServiceTest {
                         MediaType.APPLICATION_JSON);
         MvcResult result = mockMvc.perform(requestBuilder).andReturn();
         result.getResponse().getErrorMessage();
-        System.out.println(result.getResponse().getStatus());
         Assert.assertEquals(406,result.getResponse().getStatus());
 
     }
@@ -108,7 +107,6 @@ public class GitUserServiceTest {
                 .accept(
                         MediaType.APPLICATION_JSON);
         MvcResult result = mockMvc.perform(requestBuilder).andReturn();
-        System.out.println(result.getResponse().getStatus());
         Assert.assertEquals(500,result.getResponse().getStatus());
 
     }

@@ -97,7 +97,6 @@ public class GitUserControllerTest {
                 .accept(
                         MediaType.APPLICATION_JSON);
         MvcResult result = mockMvc.perform(requestBuilder).andReturn();
-        System.out.println(result.getResponse().getStatus());
         Assert.assertEquals(202,result.getResponse().getStatus());
 
     }
@@ -123,7 +122,6 @@ public class GitUserControllerTest {
                 .accept(
                         MediaType.APPLICATION_JSON);
         MvcResult result = mockMvc.perform(requestBuilder).andReturn();
-        System.out.println(result.getResponse().getStatus());
         Assert.assertEquals(400,result.getResponse().getStatus());
 
     }
